@@ -1,0 +1,16 @@
+frozenlist (1.3.3-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+    - Fixes FTBFS with Python 3.11. (Closes: #1024013)
+  * Run unit tests.
+    - Build-depend on python3-pytest.
+  * Build using the pyproject pybuild plugin.
+
+ -- Felix Geyer <fgeyer@debian.org>  Mon, 14 Nov 2022 18:35:08 +0100
+
+frozenlist (1.2.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Piotr Ożarowski <piotr@debian.org>  Sun, 28 Nov 2021 15:33:33 +0000

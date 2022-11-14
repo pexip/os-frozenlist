@@ -1,0 +1,62 @@
+Source: frozenlist
+Section: python
+Priority: optional
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
+Uploaders: Piotr Ożarowski <piotr@debian.org>
+Build-Depends: debhelper-compat (= 13), dh-python,
+               cython3,
+               pybuild-plugin-pyproject,
+               python3-all-dev,
+               python3-pytest,
+               python3-setuptools,
+               python3-sphinx,
+Standards-Version: 4.6.0
+Homepage: https://github.com/aio-libs/frozenlist
+Vcs-Git: https://salsa.debian.org/python-team/packages/frozenlist.git
+Vcs-Browser: https://salsa.debian.org/python-team/packages/frozenlist
+
+Package: python3-frozenlist
+Architecture: any
+Depends: ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends},
+Recommends: ${python3:Recommends}
+Suggests: ${python3:Suggests}
+Description: list-like structure which implements collections.abc.MutableSequence
+ `frozenlist.FrozenList` is a list-like structure which implements
+ `collections.abc.MutableSequence`. The list is mutable until `FrozenList.freeze`
+ is called, after which list modifications raise `RuntimeError`:
+ .
+  >>> from frozenlist import FrozenList
+  >>> fl = FrozenList([17, 42])
+  >>> fl.append('spam')
+  >>> fl.append('Vikings')
+  >>> fl
+  <FrozenList(frozen=False, [17, 42, 'spam', 'Vikings'])>
+  >>> fl.freeze()
+  >>> fl
+  <FrozenList(frozen=True, [17, 42, 'spam', 'Vikings'])>
+  >>> fl.frozen
+  True
+  >>> fl.append("Monty")
+  Traceback (most recent call last):
+   File "<stdin>", line 1, in <module>
+   File "frozenlist/_frozenlist.pyx", line 97, in frozenlist._frozenlist.FrozenList.append
+     self._check_frozen()
+   File "frozenlist/_frozenlist.pyx", line 19, in frozenlist._frozenlist.FrozenList._check_frozen
+     raise RuntimeError("Cannot modify frozen list.")
+   RuntimeError: Cannot modify frozen list.
+ .
+ FrozenList is also hashable, but only when frozen. Otherwise it also throws a RuntimeError:
+ .
+  >>> fl = FrozenList([17, 42, 'spam'])
+  >>> hash(fl)
+  Traceback (most recent call last):
+   File "<stdin>", line 1, in <module>
+   File "frozenlist/_frozenlist.pyx", line 111, in frozenlist._frozenlist.FrozenList.__hash__
+     raise RuntimeError("Cannot hash unfrozen list.")
+   RuntimeError: Cannot hash unfrozen list.
+  >>> fl.freeze()
+  >>> hash(fl)
+  3713081631934410656
+  >>> dictionary = {fl: 'Vikings'} # frozen fl can be a dict key
+  >>> dictionary
+  {<FrozenList(frozen=True, [1, 2])>: 'Vikings'}
