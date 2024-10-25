@@ -1,4 +1,3 @@
-==========
 frozenlist
 ==========
 
@@ -10,24 +9,24 @@ frozenlist
    :target: https://codecov.io/gh/aio-libs/frozenlist
    :alt: codecov.io status for master branch
 
-.. image:: https://badge.fury.io/py/frozenlist.svg
+.. image:: https://img.shields.io/pypi/v/frozenlist.svg?logo=Python&logoColor=white
    :target: https://pypi.org/project/frozenlist
-   :alt: Latest PyPI package version
+   :alt: frozenlist @ PyPI
 
 .. image:: https://readthedocs.org/projects/frozenlist/badge/?version=latest
-   :target: https://frozenlist.readthedocs.io/
-   :alt: Latest Read The Docs
+   :target: https://frozenlist.aio-libs.org
+   :alt: Read The Docs build status badge
 
-.. image:: https://img.shields.io/discourse/topics?server=https%3A%2F%2Faio-libs.discourse.group%2F
-   :target: https://aio-libs.discourse.group/
-   :alt: Discourse group for io-libs
+.. image:: https://img.shields.io/matrix/aio-libs:matrix.org?label=Discuss%20on%20Matrix%20at%20%23aio-libs%3Amatrix.org&logo=matrix&server_fqdn=matrix.org&style=flat
+   :target: https://matrix.to/#/%23aio-libs:matrix.org
+   :alt: Matrix Room — #aio-libs:matrix.org
 
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :target: https://gitter.im/aio-libs/Lobby
-   :alt: Chat on Gitter
+.. image:: https://img.shields.io/matrix/aio-libs-space:matrix.org?label=Discuss%20on%20Matrix%20at%20%23aio-libs-space%3Amatrix.org&logo=matrix&server_fqdn=matrix.org&style=flat
+   :target: https://matrix.to/#/%23aio-libs-space:matrix.org
+   :alt: Matrix Space — #aio-libs-space:matrix.org
 
 Introduction
-============
+------------
 
 ``frozenlist.FrozenList`` is a list-like structure which implements
 ``collections.abc.MutableSequence``. The list is *mutable* until ``FrozenList.freeze``
@@ -80,35 +79,33 @@ Installation
 
    $ pip install frozenlist
 
-The library requires Python 3.6 or newer.
+The library requires Python 3.8 or newer.
 
 
 Documentation
-=============
+-------------
 
-https://frozenlist.readthedocs.io/
+https://frozenlist.aio-libs.org
 
 Communication channels
-======================
+----------------------
 
-*aio-libs discourse group*: https://aio-libs.discourse.group
-
-Feel free to post your questions and ideas here.
-
-*gitter chat* https://gitter.im/aio-libs/Lobby
+We have a *Matrix Space* `#aio-libs-space:matrix.org
+<https://matrix.to/#/%23aio-libs-space:matrix.org>`_ which is
+also accessible via Gitter.
 
 Requirements
-============
+------------
 
-- Python >= 3.6
+- Python >= 3.8
 
 License
-=======
+-------
 
 ``frozenlist`` is offered under the Apache 2 license.
 
 Source code
-===========
+-----------
 
 The project is hosted on GitHub_
 

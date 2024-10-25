@@ -7,13 +7,16 @@ Build-Depends: debhelper-compat (= 13), dh-python,
                cython3,
                pybuild-plugin-pyproject,
                python3-all-dev,
+               python3-expandvars,
                python3-pytest,
+               python3-pytest-cov,
                python3-setuptools,
                python3-sphinx,
-Standards-Version: 4.6.0
+Standards-Version: 4.6.2
 Homepage: https://github.com/aio-libs/frozenlist
 Vcs-Git: https://salsa.debian.org/python-team/packages/frozenlist.git
 Vcs-Browser: https://salsa.debian.org/python-team/packages/frozenlist
+Testsuite: autopkgtest-pkg-pybuild
 
 Package: python3-frozenlist
 Architecture: any
