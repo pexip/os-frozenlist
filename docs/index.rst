@@ -4,11 +4,11 @@ frozenlist
 A list-like structure which implements
 :class:`collections.abc.MutableSequence`.
 
-The list is *mutable* until :meth:`FrozenList.freeze` is called,
+The list is *mutable* until :meth:`~frozenlist.FrozenList.freeze` is called,
 after which list modifications raise :exc:`RuntimeError`. A
-:class:`FrozenList` instance is hashable, but only when frozen.
-Attempts to hash a non-frozen instance will result in a
-:exc:`RuntimeError` exception.
+:class:`~frozenlist.FrozenList` instance is hashable, but only when frozen.
+Attempts to hash a non-frozen instance will result in a :exc:`RuntimeError`
+exception.
 
 API
 ---
@@ -37,27 +37,25 @@ Installation
 
    $ pip install frozenlist
 
-The library requires Python 3.6 or newer.
+The library requires Python 3.8 or newer.
 
 
 Documentation
 =============
 
-https://frozenlist.readthedocs.io/
+https://frozenlist.aio-libs.org
 
 Communication channels
 ======================
 
-*aio-libs discourse group*: https://aio-libs.discourse.group
-
-Feel free to post your questions and ideas here.
-
-*gitter chat* https://gitter.im/aio-libs/Lobby
+We have a *Matrix Space* `#aio-libs-space:matrix.org
+<https://matrix.to/#/%23aio-libs-space:matrix.org>`_ which is
+also accessible via Gitter.
 
 Requirements
 ============
 
-- Python >= 3.6
+- Python >= 3.8
 
 License
 =======
@@ -87,6 +85,22 @@ Feel free to improve this package and send a pull request to GitHub_.
 
 .. toctree::
    :maxdepth: 2
+
+.. toctree::
+   :caption: What's new
+
+   changes
+
+.. toctree::
+   :caption: Contributing
+
+   contributing/guidelines
+
+.. toctree::
+   :caption: Maintenance
+
+   contributing/release_guide
+
 
 Indices and tables
 ==================
