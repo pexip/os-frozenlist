@@ -30,15 +30,19 @@ backports
 BaseEventLoop
 basename
 BasicAuth
+Bluesky
 BodyPartReader
 boolean
 botocore
 Bugfixes
+buildable
 builtin
 bugfix
 BytesIO
 cchardet
 cChardet
+changelog
+changelogs
 Changelog
 charset
 charsetdetect
@@ -49,6 +53,7 @@ ClientSession
 cls
 cmd
 codec
+Codecov
 Codings
 committer
 committers
@@ -74,6 +79,7 @@ deduplicate
 # de-facto:
 deprecations
 DER
+dev
 Dev
 dict
 Dict
@@ -83,6 +89,7 @@ Django
 dns
 DNSResolver
 docstring
+downstreams
 Dup
 elasticsearch
 encodings
@@ -101,11 +108,14 @@ frozenlist
 getall
 gethostbyname
 github
+Gitter
 google
+GPG
 gunicorn
 gunicorn’s
 gzipped
 hackish
+hardcoded
 hashable
 highlevel
 hostnames
@@ -153,7 +163,6 @@ middleware
 middlewares
 miltidict
 misbehaviors
-misformed
 Mixcloud
 Mongo
 msg
@@ -172,6 +181,7 @@ nameservers
 namespace
 nginx
 Nginx
+nightlies
 Nikolay
 noop
 nowait
@@ -216,6 +226,7 @@ refactor
 Refactor
 refactored
 refactoring
+reStructuredText
 regex
 regexps
 regexs
@@ -235,9 +246,11 @@ resolvers
 reusage
 reuseconn
 Runit
+runtimes
 sa
 Satisfiable
 schemas
+sdist
 sendfile
 serializable
 shourtcuts
@@ -311,4 +324,3 @@ WSMsgType
 wss
 www
 xxx
-yarl
