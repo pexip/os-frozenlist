@@ -4,14 +4,15 @@
 from __future__ import annotations
 
 import os
-import typing as t
+import sysconfig
 from contextlib import contextmanager, nullcontext, suppress
+from functools import partial
 from pathlib import Path
 from shutil import copytree
 from sys import implementation as _system_implementation
 from sys import stderr as _standard_error_stream
-from sys import version_info as _python_version_tuple
 from tempfile import TemporaryDirectory
+from typing import Dict, Iterator, List, Union
 from warnings import warn as _warn_that
 
 from setuptools.build_meta import build_sdist as _setuptools_build_sdist
@@ -42,14 +43,12 @@ with suppress(ImportError):
     from Cython.Build.Cythonize import main as _cythonize_cli_cmd
 
 from ._compat import chdir_cm
-from ._cython_configuration import (  # noqa: WPS436
-    get_local_cython_config as _get_local_cython_config,
-)
+from ._cython_configuration import get_local_cython_config as _get_local_cython_config
 from ._cython_configuration import (
     make_cythonize_cli_args_from_config as _make_cythonize_cli_args_from_config,
 )
 from ._cython_configuration import patched_env as _patched_cython_env
-from ._transformers import sanitize_rst_roles  # noqa: WPS436
+from ._transformers import sanitize_rst_roles
 
 __all__ = (  # noqa: WPS410
     'build_sdist',
@@ -57,7 +56,7 @@ __all__ = (  # noqa: WPS410
     'get_requires_for_build_wheel',
     'prepare_metadata_for_build_wheel',
     *(
-        () if _setuptools_build_editable is None
+        () if _setuptools_build_editable is None  # type: ignore[redundant-expr]
         else (
             'build_editable',
             'get_requires_for_build_editable',
@@ -65,6 +64,8 @@ __all__ = (  # noqa: WPS410
         )
     ),
 )
+
+_ConfigDict = Dict[str, Union[str, List[str], None]]
 
 
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'
@@ -79,9 +80,6 @@ PURE_PYTHON_CONFIG_SETTING = 'pure-python'
 PURE_PYTHON_ENV_VAR = 'FROZENLIST_NO_EXTENSIONS'
 """Environment variable name toggle used to opt out of making C-exts."""
 
-IS_PY3_12_PLUS = _python_version_tuple[:2] >= (3, 12)
-"""A flag meaning that the current runtime is Python 3.12 or higher."""
-
 IS_CPYTHON = _system_implementation.name == "cpython"
 """A flag meaning that the current interpreter implementation is CPython."""
 
@@ -89,13 +87,13 @@ PURE_PYTHON_MODE_CLI_FALLBACK = not IS_CPYTHON
 """A fallback for ``pure-python`` is not set."""
 
 
-def _is_truthy_setting_value(setting_value) -> bool:
+def _is_truthy_setting_value(setting_value: str) -> bool:
     truthy_values = {'', None, 'true', '1', 'on'}
     return setting_value.lower() in truthy_values
 
 
 def _get_setting_value(
-        config_settings: dict[str, str] | None = None,
+        config_settings: _ConfigDict | None = None,
         config_setting_name: str | None = None,
         env_var_name: str | None = None,
         *,
@@ -110,12 +108,12 @@ def _get_setting_value(
             continue
 
         with suppress(lookup_errors):  # type: ignore[arg-type]
-            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[index]
+            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index]
 
     return default
 
 
-def _make_pure_python(config_settings: dict[str, str] | None = None) -> bool:
+def _make_pure_python(config_settings: _ConfigDict | None = None) -> bool:
     return _get_setting_value(
         config_settings,
         PURE_PYTHON_CONFIG_SETTING,
@@ -125,9 +123,9 @@ def _make_pure_python(config_settings: dict[str, str] | None = None) -> bool:
 
 
 def _include_cython_line_tracing(
-        config_settings: dict[str, str] | None = None,
+        config_settings: _ConfigDict | None = None,
         *,
-        default=False,
+        default: bool = False,
 ) -> bool:
     return _get_setting_value(
         config_settings,
@@ -138,7 +136,7 @@ def _include_cython_line_tracing(
 
 
 @contextmanager
-def patched_distutils_cmd_install():
+def patched_distutils_cmd_install() -> Iterator[None]:
     """Make `install_lib` of `install` cmd always use `platlib`.
 
     :yields: None
@@ -146,19 +144,19 @@ def patched_distutils_cmd_install():
     # Without this, build_lib puts stuff under `*.data/purelib/` folder
     orig_finalize = _distutils_install_cmd.finalize_options
 
-    def new_finalize_options(self):  # noqa: WPS430
+    def new_finalize_options(self: _distutils_install_cmd) -> None:  # noqa: WPS430
         self.install_lib = self.install_platlib
         orig_finalize(self)
 
-    _distutils_install_cmd.finalize_options = new_finalize_options
+    _distutils_install_cmd.finalize_options = new_finalize_options  # type: ignore[method-assign]
     try:
         yield
     finally:
-        _distutils_install_cmd.finalize_options = orig_finalize
+        _distutils_install_cmd.finalize_options = orig_finalize  # type: ignore[method-assign]
 
 
 @contextmanager
-def patched_dist_has_ext_modules():
+def patched_dist_has_ext_modules() -> Iterator[None]:
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
     :yields: None
@@ -166,15 +164,15 @@ def patched_dist_has_ext_modules():
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
     orig_func = _DistutilsDistribution.has_ext_modules
 
-    _DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True
+    _DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True  # type: ignore[method-assign]
     try:
         yield
     finally:
-        _DistutilsDistribution.has_ext_modules = orig_func
+        _DistutilsDistribution.has_ext_modules = orig_func  # type: ignore[method-assign]
 
 
 @contextmanager
-def patched_dist_get_long_description():
+def patched_dist_get_long_description() -> Iterator[None]:
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
     :yields: None
@@ -182,24 +180,57 @@ def patched_dist_get_long_description():
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
     _orig_func = _DistutilsDistributionMetadata.get_long_description
 
-    def _get_sanitized_long_description(self):
+    def _get_sanitized_long_description(self: _DistutilsDistributionMetadata) -> str:
+        assert self.long_description is not None
         return sanitize_rst_roles(self.long_description)
 
-    _DistutilsDistributionMetadata.get_long_description = (
+    _DistutilsDistributionMetadata.get_long_description = (  # type: ignore[method-assign]
         _get_sanitized_long_description
     )
     try:
         yield
     finally:
-        _DistutilsDistributionMetadata.get_long_description = _orig_func
+        _DistutilsDistributionMetadata.get_long_description = _orig_func  # type: ignore[method-assign]
+
+
+def _exclude_dir_path(
+    excluded_dir_path: Path,
+    visited_directory: str,
+    _visited_dir_contents: list[str],
+) -> list[str]:
+    """Prevent recursive directory traversal."""
+    # This stops the temporary directory from being copied
+    # into self recursively forever.
+    # Ref: https://github.com/aio-libs/yarl/issues/992
+    visited_directory_subdirs_to_ignore = [
+        subdir
+        for subdir in _visited_dir_contents
+        if excluded_dir_path == Path(visited_directory) / subdir
+    ]
+    if visited_directory_subdirs_to_ignore:
+        print(
+            f'Preventing `{excluded_dir_path !s}` from being '
+            'copied into itself recursively...',
+            file=_standard_error_stream,
+        )
+    return visited_directory_subdirs_to_ignore
 
 
 @contextmanager
-def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
+def _in_temporary_directory(src_dir: Path) -> Iterator[None]:
     with TemporaryDirectory(prefix='.tmp-frozenlist-pep517-') as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        root_tmp_dir_path = tmp_dir_path.parent
+        _exclude_tmpdir_parent = partial(_exclude_dir_path, root_tmp_dir_path)
+
         with chdir_cm(tmp_dir):
-            tmp_src_dir = Path(tmp_dir) / 'src'
-            copytree(src_dir, tmp_src_dir, symlinks=True)
+            tmp_src_dir = tmp_dir_path / 'src'
+            copytree(
+                src_dir,
+                tmp_src_dir,
+                ignore=_exclude_tmpdir_parent,
+                symlinks=True,
+            )
             os.chdir(tmp_src_dir)
             yield
 
@@ -208,8 +239,8 @@ def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
 def maybe_prebuild_c_extensions(
         line_trace_cython_when_unset: bool = False,
         build_inplace: bool = False,
-        config_settings: dict[str, str] | None = None,
-) -> t.Generator[None, t.Any, t.Any]:
+        config_settings: _ConfigDict | None = None,
+) -> Iterator[None]:
     """Pre-build C-extensions in a temporary directory, when needed.
 
     This context manager also patches metadata, setuptools and distutils.
@@ -272,7 +303,7 @@ def maybe_prebuild_c_extensions(
 @patched_dist_get_long_description()
 def build_wheel(
         wheel_directory: str,
-        config_settings: dict[str, str] | None = None,
+        config_settings: _ConfigDict | None = None,
         metadata_directory: str | None = None,
 ) -> str:
     """Produce a built wheel.
@@ -299,7 +330,7 @@ def build_wheel(
 @patched_dist_get_long_description()
 def build_editable(
         wheel_directory: str,
-        config_settings: dict[str, str] | None = None,
+        config_settings: _ConfigDict | None = None,
         metadata_directory: str | None = None,
 ) -> str:
     """Produce a built wheel for editable installs.
@@ -324,7 +355,7 @@ def build_editable(
 
 
 def get_requires_for_build_wheel(
-        config_settings: dict[str, str] | None = None,
+        config_settings: _ConfigDict | None = None,
 ) -> list[str]:
     """Determine additional requirements for building wheels.
 
@@ -342,10 +373,12 @@ def get_requires_for_build_wheel(
             stacklevel=999,
         )
 
-    c_ext_build_deps = [] if is_pure_python_build else [
-        'Cython >= 3.0.0b3' if IS_PY3_12_PLUS  # Only Cython 3+ is compatible
-        else 'Cython',
-    ]
+    if is_pure_python_build:
+        c_ext_build_deps = []
+    elif sysconfig.get_config_var('Py_GIL_DISABLED'):
+        c_ext_build_deps = ['Cython ~= 3.1.0a1']
+    else:
+        c_ext_build_deps = ['Cython >= 3.0.12']
 
     return _setuptools_get_requires_for_build_wheel(
         config_settings=config_settings,
